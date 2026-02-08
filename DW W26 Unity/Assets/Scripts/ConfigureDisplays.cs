@@ -26,7 +26,7 @@ public class ConfigureDisplays : MonoBehaviour
             string msg = $"Connected display count: {Display.displays.Length}";
             Debug.Log(msg);
             // Show display 1 information.
-            SetDisplayInfo(Display.displays[0], DisplayText1, "Display 1");
+            SetDisplayInfo(0, DisplayText1);
         }
 
         // Run setup for display 2 if able.
@@ -35,7 +35,7 @@ public class ConfigureDisplays : MonoBehaviour
             // Activate display 2 (zero-indexed).
             Display.displays[1].Activate();
             // Show display 2 information.
-            SetDisplayInfo(Display.displays[1], DisplayText2, "Display 2");
+            SetDisplayInfo(1, DisplayText2);
         }
         // Soft error if no second monitor detected when run as build (not in Unity Editor).
         else if (!Application.isEditor)
@@ -50,10 +50,11 @@ public class ConfigureDisplays : MonoBehaviour
         HasRun = true;
     }
 
-    private void SetDisplayInfo(Display display, TMP_Text displayText, string prefix)
+    private void SetDisplayInfo(int displayIndex, TMP_Text displayText)
     {
+        Display display = Display.displays[displayIndex];
         string msg =
-            $"{prefix}\n" +
+            $"Display {displayIndex + 1}\n" +
             $"Rendering({display.renderingWidth}, {display.renderingHeight})\n" +
             $"System({display.systemWidth}, {display.systemHeight})";
         displayText.text = msg;
