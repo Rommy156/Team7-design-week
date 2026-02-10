@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  m_NotificationBehavior: 0
+  m_NotificationBehavior: 2
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
@@ -206,7 +206,6 @@ MonoBehaviour:
   <SpriteRenderer>k__BackingField: {fileID: 2500016798255280548}
   <Rigidbody2D>k__BackingField: {fileID: 3752404572598628836}
   <MoveSpeed>k__BackingField: 6.5
-  <JumpForce>k__BackingField: 5
   firePoint: {fileID: 2687254092873262033}
   projectilePrefab: {fileID: 6017471005824350377, guid: 6389bdd6660ea4f479d272c279c62afd, type: 3}
   projectileSpeed: 12
