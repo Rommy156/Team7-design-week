@@ -7,15 +7,21 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Color PlayerColor { get; private set; }
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [field: SerializeField] public Rigidbody2D Rigidbody2D { get; private set; }
-    [field: SerializeField] public float MoveSpeed { get; private set; } = 10f;
-    [field: SerializeField] public float JumpForce { get; private set; } = 5f;
+    [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
+    //parameters for shooting projectiles
+    [Header("Combat")]
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float projectileSpeed = 12f;
+    [SerializeField] private float rotationSpeed = 720f;
 
     public bool DoJump { get; private set; }
 
     // Player input information
     private PlayerInput PlayerInput;
     private InputAction InputActionMove;
-    private InputAction InputActionJump;
+    private InputAction InputActionAim;
+    private InputAction InputActionFire;
 
     // Assign color value on spawn from main spawner
     public void AssignColor(Color color)
@@ -38,7 +44,8 @@ public class PlayerController : MonoBehaviour
         // Find the references to the "Move" and "Jump" actions inside the player input's action map
         // Here I specify "Player/" but it in not required if assigning the action map in PlayerInput inspector.
         InputActionMove = playerInput.actions.FindAction($"Player/Move");
-        InputActionJump = playerInput.actions.FindAction($"Player/Jump");
+        InputActionAim = playerInput.actions.FindAction($"Player/Aim");
+        InputActionFire = playerInput.actions.FindAction($"Player/Fire");
     }
 
     // Assign player number on spawn
@@ -46,16 +53,15 @@ public class PlayerController : MonoBehaviour
     {
         this.PlayerNumber = playerNumber;
     }
+    
 
     // Runs each frame
     public void Update()
     {
-        // Read the "Jump" action state, which is a boolean value
-        if (InputActionJump.WasPressedThisFrame())
+        RotateTowardAim();
+        if (InputActionFire.WasPressedThisFrame()) 
         {
-            // Buffer input becuase I'm controlling the Rigidbody through FixedUpdate
-            // and checking there we can miss inputs.
-            DoJump = true;
+            FireProjectile();
         }
     }
 
@@ -72,17 +78,84 @@ public class PlayerController : MonoBehaviour
         // Read the "Move" action value, which is a 2D vector
         Vector2 moveValue = InputActionMove.ReadValue<Vector2>();
         // Here we're only using the X axis to move.
-        float moveForce = moveValue.x * MoveSpeed;
+        Vector2 moveForce = moveValue * MoveSpeed;
         // Apply fraction of force each frame
-        Rigidbody2D.AddForceX(moveForce, ForceMode2D.Force);
+        Rigidbody2D.AddForce(moveForce, ForceMode2D.Force);
 
-        // JUMP - review Update()
-        if (DoJump)
+       
+    }
+    private void RotateTowardAim()
+    {
+        Vector2 aimInput = InputActionAim.ReadValue<Vector2>();
+
+        // Mouse aiming
+        if (PlayerInput.currentControlScheme == "KeyboardMouse")
         {
-            // Apply all force immediately
-            Rigidbody2D.AddForceY(JumpForce, ForceMode2D.Impulse);
-            DoJump = false;
+            Vector3 mouseWorld =
+                Camera.main.ScreenToWorldPoint(aimInput);
+            Vector2 dir = mouseWorld - transform.position;
+            Rotate(dir);
         }
+        // Stick aiming
+        else if (aimInput.sqrMagnitude > 0.1f)
+        {
+            Rotate(aimInput);
+        }
+    }
+
+    private void Rotate(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion targetRot = Quaternion.Euler(0, 0, angle);
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRot,
+            rotationSpeed * Time.deltaTime
+        );
+    }
+    private void FireProjectile()
+    {
+        // Check if we have a projectile prefab and fire point assigned
+        if (!projectilePrefab || !firePoint)
+            return;
+
+        // Get the forward direction of the fire point (the right vector in local space)
+        // We normalize it so the direction has length of 1
+        Vector2 forward = firePoint.right.normalized;
+
+        // OFFSET so it does NOT spawn inside the player
+        Vector2 spawnPos = (Vector2)firePoint.position + forward * 0.3f;
+
+        // Instantiate the projectile prefab at the spawn position and with the same rotation as the fire point
+        GameObject proj = Instantiate(
+            projectilePrefab,
+            spawnPos,
+            firePoint.rotation
+        );
+
+        // Ignore collision between the projectile and the player who fired it
+        Collider2D projCol = proj.GetComponent<Collider2D>();
+        Collider2D playerCol = GetComponent<Collider2D>();
+
+        // Check if both colliders exist before trying to ignore collision
+        if (projCol && playerCol)
+        {
+            Physics2D.IgnoreCollision(projCol, playerCol);
+        }
+        // Set the projectile's velocity in the forward direction
+        Rigidbody2D rb = proj.GetComponent<Rigidbody2D>();
+
+        // We set gravity scale to 0 and zero out any existing velocity
+        // to ensure the projectile moves straight in the intended direction
+        // without being affected by gravity or any inherited velocity.
+        rb.gravityScale = 0f;
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+
+        //Apply an instantaneous force to the projectile in the forward direction,
+        //scaled by projectileSpeed
+        rb.AddForce(forward * projectileSpeed, ForceMode2D.Impulse);
+
     }
 
     // OnValidate runs after any change in the inspector for this script.
