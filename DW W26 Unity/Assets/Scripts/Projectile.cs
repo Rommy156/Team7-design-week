@@ -7,10 +7,12 @@ public class Projectile : MonoBehaviour
     void Start()
     {
         Destroy(gameObject, lifeTime);
+
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         Destroy(gameObject);
+
     }
 }

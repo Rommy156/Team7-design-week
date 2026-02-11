@@ -14,6 +14,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 12f;
     [SerializeField] private float rotationSpeed = 720f;
+    //parameters for player stats
+    [Header("Player Stats")]
+    [SerializeField] private int maxHP = 100;
+    [SerializeField] private int currentHP;
+    //parameters for ammo management
+    [Header("Ammo")]
+    [SerializeField] private int maxAmmo = 10;
+    [SerializeField] private int currentAmmo;
+
 
     public bool DoJump { get; private set; }
 
@@ -22,6 +31,13 @@ public class PlayerController : MonoBehaviour
     private InputAction InputActionMove;
     private InputAction InputActionAim;
     private InputAction InputActionFire;
+
+    void Awake()
+    {
+        currentHP = maxHP;
+        currentAmmo = maxAmmo;
+        Debug.Log($"[AMMO] Start Ammo: {currentAmmo}");
+    }
 
     // Assign color value on spawn from main spawner
     public void AssignColor(Color color)
@@ -116,8 +132,14 @@ public class PlayerController : MonoBehaviour
     private void FireProjectile()
     {
         // Check if we have a projectile prefab and fire point assigned
-        if (!projectilePrefab || !firePoint)
+        Ammo ammo = GetComponent<Ammo>();
+
+        if (currentAmmo <= 0)
             return;
+
+        currentAmmo--;
+
+        Debug.Log($"[AMMO] Fired. Ammo now: {currentAmmo}");
 
         // Get the forward direction of the fire point (the right vector in local space)
         // We normalize it so the direction has length of 1
@@ -157,6 +179,11 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(forward * projectileSpeed, ForceMode2D.Impulse);
 
     }
+    public void AddAmmo(int amount)
+    {
+        currentAmmo = Mathf.Min(currentAmmo + amount, maxAmmo);
+    }
+
 
     // OnValidate runs after any change in the inspector for this script.
     private void OnValidate()
