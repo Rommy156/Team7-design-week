@@ -124,7 +124,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -143,12 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22ec2a51f36c6d847a55b81b242e1f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
-<<<<<<< Updated upstream
   lifeTime: 3
-=======
-  lifeTime: 5
-  damage: 10
->>>>>>> Stashed changes
 --- !u!50 &670441764306457449
 Rigidbody2D:
   serializedVersion: 5
@@ -175,4 +170,4 @@ Rigidbody2D:
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 4
+  m_Constraints: 0
