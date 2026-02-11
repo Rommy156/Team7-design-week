@@ -9,6 +9,7 @@ public class PlayerSpawn : MonoBehaviour
 
     public void OnPlayerJoined(PlayerInput playerInput)
     {
+
         int maxPlayerCount = Mathf.Min(SpawnPoints.Length, PlayerColors.Length);
         if (maxPlayerCount < 1)
         {

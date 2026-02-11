@@ -9,36 +9,54 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public Rigidbody2D Rigidbody2D { get; private set; }
     [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
     //parameters for shooting projectiles
+
     [Header("Combat")]
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 12f;
     [SerializeField] private float rotationSpeed = 720f;
     //parameters for player stats
+
     [Header("Player Stats")]
     [SerializeField] private int maxHP = 100;
     [SerializeField] private int currentHP;
+
     //parameters for ammo management
     [Header("Ammo")]
     [SerializeField] private int maxAmmo = 10;
     [SerializeField] private int currentAmmo;
 
-
-    public bool DoJump { get; private set; }
+    [Header("Health")]
+    private int currentHealth;
+    [SerializeField] private int maxHp = 100;
+    int damage = 20;
 
     // Player input information
     private PlayerInput PlayerInput;
     private InputAction InputActionMove;
     private InputAction InputActionAim;
     private InputAction InputActionFire;
-
-    void Awake()
+    void Start()
     {
-        currentHP = maxHP;
-        currentAmmo = maxAmmo;
-        Debug.Log($"[AMMO] Start Ammo: {currentAmmo}");
+        currentHP = maxHp;
     }
 
+    public void TakeDamage(int amount)
+    {
+        currentHP -= amount;
+        Debug.Log(gameObject.name + " HP: " + currentHealth);
+
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log(gameObject.name + " died.");
+        gameObject.SetActive(false);
+    }
     // Assign color value on spawn from main spawner
     public void AssignColor(Color color)
     {

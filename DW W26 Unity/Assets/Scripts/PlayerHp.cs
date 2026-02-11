@@ -1,3 +1,5 @@
+
+
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
@@ -5,34 +7,43 @@ public class PlayerHealth : MonoBehaviour
     [Header("Health Settings")]
     public int maxHP = 100;
     public int currentHP;
+    public int damage = 20;
 
+    private bool isDead = false;
     private void Awake()
     {
         // Start player at full health
         currentHP = maxHP;
     }
 
-    // Call this when the player takes damage
-    public void TakeDamage(int damage)
+    public void TakeDamage(int amount)
     {
-        currentHP -= damage;
+        if (isDead) return;
 
-        // Clamp HP so it never goes below zero
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        currentHP = Mathf.Clamp(currentHP - amount, 0, maxHP);
 
-        // Check if player is dead
+        Debug.Log($"{gameObject.name} HP: {currentHP}");
+
         if (currentHP <= 0)
         {
             Die();
         }
     }
 
-    void Die()
-    {
-        Debug.Log("Player died");
 
-        // Disable player controls (simple approach)
+    private void Die()
+    {
+        if (isDead) return;
+
+        isDead = true;
+
+        Debug.Log(gameObject.name + " died.");
+
+        // Disable player
         gameObject.SetActive(false);
 
+        // OR you could:
+        // Destroy(gameObject);
     }
+
 }
