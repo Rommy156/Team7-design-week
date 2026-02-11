@@ -8,23 +8,36 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [field: SerializeField] public Rigidbody2D Rigidbody2D { get; private set; }
     [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
+
     //parameters for shooting projectiles
     [Header("Combat")]
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 12f;
     [SerializeField] private float rotationSpeed = 720f;
+
     //parameters for player stats
     [Header("Player Stats")]
     [SerializeField] private int maxHP = 100;
     [SerializeField] private int currentHP;
+
     //parameters for ammo management
     [Header("Ammo")]
     [SerializeField] private int maxAmmo = 10;
     [SerializeField] private int currentAmmo;
 
+    
+    //Spider Event Roles
+    public enum SpiderRole
+    {
+        None, Driver, Shooter, Looter
+    }
 
-    public bool DoJump { get; private set; }
+    public SpiderRole CurrentRole = SpiderRole.None;
+
+    // Input values
+    private Vector2 moveInput;
+    private Vector2 aimInput;
 
     // Player input information
     private PlayerInput PlayerInput;
@@ -69,37 +82,45 @@ public class PlayerController : MonoBehaviour
     {
         this.PlayerNumber = playerNumber;
     }
-    
+
 
     // Runs each frame
     public void Update()
     {
-        RotateTowardAim();
-        if (InputActionFire.WasPressedThisFrame()) 
+        // Read aim input every frame
+        aimInput = InputActionAim.ReadValue<Vector2>();
+
+        if (CurrentRole == SpiderRole.Driver && SpiderEventManager.Instance.spiderEventActive)
         {
-            FireProjectile();
+            SpiderEventManager.Instance.spiderVehicle.SetMovementInput(moveInput);
+            SpiderEventManager.Instance.spiderVehicle.SetRotationInput(moveInput.x);
         }
+
+        RotateTowardAim();
+
+        if (InputActionFire.WasPressedThisFrame())
+            FireProjectile();
+
     }
 
     // Runs each phsyics update
     void FixedUpdate()
-    {
-        if (Rigidbody2D == null)
+    {// Read movement input in physics update
+        moveInput = InputActionMove.ReadValue<Vector2>();
+
+        // If driving, DO NOT move the player body
+        if (SpiderEventManager.Instance.spiderEventActive &&
+            CurrentRole == SpiderRole.Driver)
         {
-            Debug.Log($"{name}'s {nameof(PlayerController)}.{nameof(Rigidbody2D)} is null.");
             return;
         }
 
-        // MOVE
-        // Read the "Move" action value, which is a 2D vector
-        Vector2 moveValue = InputActionMove.ReadValue<Vector2>();
-        // Here we're only using the X axis to move.
-        Vector2 moveForce = moveValue * MoveSpeed;
-        // Apply fraction of force each frame
-        Rigidbody2D.AddForce(moveForce, ForceMode2D.Force);
+        // Normal player movement
+        if (moveInput.sqrMagnitude > 0.01f)
+            Rigidbody2D.AddForce(moveInput * MoveSpeed);
 
-       
     }
+
     private void RotateTowardAim()
     {
         Vector2 aimInput = InputActionAim.ReadValue<Vector2>();
@@ -131,9 +152,6 @@ public class PlayerController : MonoBehaviour
     }
     private void FireProjectile()
     {
-        // Check if we have a projectile prefab and fire point assigned
-        Ammo ammo = GetComponent<Ammo>();
-
         if (currentAmmo <= 0)
             return;
 

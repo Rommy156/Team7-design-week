@@ -6,20 +6,32 @@ public class Ammo : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Only players can pick this up
         if (!other.CompareTag("Player"))
             return;
 
-        PlayerController player =
-            other.GetComponent<PlayerController>();
+        PlayerController player = other.GetComponent<PlayerController>();
 
         if (player == null)
             return;
 
-        // Give ammo
+        // If spider event active, only looter can pick up
+        if (SpiderEventManager.Instance != null &&
+            SpiderEventManager.Instance.spiderEventActive)
+        {
+            if (player.CurrentRole != PlayerController.SpiderRole.Looter)
+                return;
+
+            if (player.transform.parent != null)
+                return;
+        }
+
+        //  Add ammo
         player.AddAmmo(ammoAmount);
 
-        // Remove pickup
+        Debug.Log("Ammo picked up!");
+
+        // Destroy pickup
         Destroy(gameObject);
     }
+
 }
