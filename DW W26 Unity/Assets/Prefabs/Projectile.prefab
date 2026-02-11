@@ -28,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6017471005824350377}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.2136, y: -0.8928, z: 0}
   m_LocalScale: {x: 0.57272375, y: 0.10718229, z: 1}
   m_ConstrainProportionsScale: 0
@@ -110,7 +110,7 @@ CapsuleCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22ec2a51f36c6d847a55b81b242e1f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  lifeTime: 3
+  lifeTime: 5
 --- !u!50 &670441764306457449
 Rigidbody2D:
   serializedVersion: 5
@@ -166,7 +166,7 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
