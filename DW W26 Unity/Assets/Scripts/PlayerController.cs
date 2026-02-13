@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [field: SerializeField] public Rigidbody2D Rigidbody2D { get; private set; }
     [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
+    [field: SerializeField] public AudioManager audioManage{ get; private set; }
     //parameters for shooting projectiles
     [Header("Combat")]
     [SerializeField] private Transform firePoint;
@@ -35,6 +37,11 @@ public class PlayerController : MonoBehaviour
         currentHP = maxHP;
         currentAmmo = maxAmmo;
         Debug.Log($"[AMMO] Start Ammo: {currentAmmo}");
+        if (audioManage == null)
+        {
+            audioManage = FindAnyObjectByType<AudioManager>();
+        }
+        audioManage.PlaySound("music");
     }
 
     // Assign color value on spawn from main spawner
@@ -96,6 +103,10 @@ public class PlayerController : MonoBehaviour
             targetVelocity,
             10f * Time.fixedDeltaTime
         );
+        if (moveInput.x != 0 || moveInput.y != 0)
+        {
+            audioManage.PlaySound("crawl");
+        }
 
     }
 
@@ -121,6 +132,7 @@ public class PlayerController : MonoBehaviour
     private void Rotate(Vector2 direction)
     {
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        audioManage.PlaySound("aim");
         Quaternion targetRot = Quaternion.Euler(0, 0, angle);
         transform.rotation = Quaternion.RotateTowards(
             transform.rotation,
@@ -137,6 +149,9 @@ public class PlayerController : MonoBehaviour
             return;
 
         currentAmmo--;
+
+        //play sound
+        audioManage.PlaySound("shoot");
 
         Debug.Log($"[AMMO] Fired. Ammo now: {currentAmmo}");
 
