@@ -90,21 +90,17 @@ public class PlayerController : MonoBehaviour
     {
         if (Rigidbody2D == null || InputActionMove == null) return;
 
-        {
-            Debug.Log($"{name}'s {nameof(PlayerController)}.{nameof(Rigidbody2D)} is null.");
-            return;
-        }
+        Vector2 moveInput = InputActionMove.ReadValue<Vector2>();
 
-        // MOVE
-        // Read the "Move" action value, which is a 2D vector
-        Vector2 moveValue = InputActionMove.ReadValue<Vector2>();
-        // Here we're only using the X axis to move.
-        Vector2 moveForce = moveValue * MoveSpeed;
-        // Apply fraction of force each frame
-        Rigidbody2D.AddForce(moveForce, ForceMode2D.Force);
+        Vector2 targetVelocity = moveInput * MoveSpeed;
+        Rigidbody2D.linearVelocity = Vector2.Lerp(
+            Rigidbody2D.linearVelocity,
+            targetVelocity,
+            10f * Time.fixedDeltaTime
+        );
 
-       
     }
+
     private void RotateTowardAim()
     {
         Vector2 aimInput = InputActionAim.ReadValue<Vector2>();

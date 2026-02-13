@@ -3,7 +3,6 @@ using UnityEngine;
 public class Ammo : MonoBehaviour
 {
     [SerializeField] private int ammoAmount = 10;
-    TeamPlayerController TeamPlayerController;
     private void OnTriggerEnter2D(Collider2D other)
     {
         TeamPlayerController player = other.GetComponentInParent<TeamPlayerController>();

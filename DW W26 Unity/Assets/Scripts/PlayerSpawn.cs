@@ -35,7 +35,7 @@ public class PlayerSpawn : MonoBehaviour
         controller.AssignColor(color);
     }
 
-    public void OnPlayerLeft(PlayerInput playerInput)
+    public void OnPlayerLeft( )
     {
         Debug.Log("Player left.");
     }
