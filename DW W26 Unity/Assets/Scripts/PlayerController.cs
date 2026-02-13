@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
         {
             audioManage = FindAnyObjectByType<AudioManager>();
         }
+        audioManage.PlaySound("music");
     }
 
     // Assign color value on spawn from main spawner

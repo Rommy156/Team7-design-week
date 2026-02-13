@@ -8,12 +8,17 @@ public class AudioManager : MonoBehaviour
     public AudioSource crawl;
     public AudioSource dammage;
     public AudioSource shoot;
+    public AudioSource music;
     void Start()
     {
         
     }
 
     public AudioClip ammoPickup;
+    public void StopPlay()
+    {
+        music.Stop();
+    }
     public void PlaySound(string sound)
     {
         switch (sound)
@@ -44,7 +49,12 @@ public class AudioManager : MonoBehaviour
                 shoot.Play();
                 break;
 
-
+            case "music":
+                if (!music.isPlaying)
+                {
+                    music.Play();
+                }
+                break;
             default:
 
                 break;
