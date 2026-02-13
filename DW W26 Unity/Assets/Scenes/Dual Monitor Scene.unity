@@ -1173,7 +1173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 830d0b65c77ebe047a962fb8e2cb977c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AmmoSpawner
-  ammoPrefab: {fileID: 1253978105975080466, guid: 9466af32b10087f408f4a7486fbacaaf, type: 3}
+  ammoPrefab: {fileID: 8617716659577569501, guid: 9466af32b10087f408f4a7486fbacaaf, type: 3}
   spawnPoints:
   - {fileID: 129605299}
   - {fileID: 464166146}
