@@ -3,6 +3,7 @@ using UnityEngine;
 public class Ammo : MonoBehaviour
 {
     [SerializeField] private int ammoAmount = 5;
+    public AudioManager Manager;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -18,6 +19,13 @@ public class Ammo : MonoBehaviour
 
         // Give ammo
         player.AddAmmo(ammoAmount);
+
+        // play sound
+        if(Manager == null)
+        {
+            Manager = FindAnyObjectByType<AudioManager>();
+        }
+        Manager.PlaySound("ammoPickup");
 
         // Remove pickup
         Destroy(gameObject);

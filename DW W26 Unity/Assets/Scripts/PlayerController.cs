@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [field: SerializeField] public Rigidbody2D Rigidbody2D { get; private set; }
     [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
+    [field: SerializeField] public AudioManager audioManage{ get; private set; }
     //parameters for shooting projectiles
     [Header("Combat")]
     [SerializeField] private Transform firePoint;
@@ -35,6 +37,10 @@ public class PlayerController : MonoBehaviour
         currentHP = maxHP;
         currentAmmo = maxAmmo;
         Debug.Log($"[AMMO] Start Ammo: {currentAmmo}");
+        if (audioManage == null)
+        {
+            audioManage = FindAnyObjectByType<AudioManager>();
+        }
     }
 
     // Assign color value on spawn from main spawner
@@ -94,6 +100,10 @@ public class PlayerController : MonoBehaviour
         // Here we're only using the X axis to move.
         Vector2 moveForce = moveValue * MoveSpeed;
         // Apply fraction of force each frame
+        if (moveForce.x != 0 || moveForce.y != 0)
+        {
+            audioManage.PlaySound("crawl");
+        }
         Rigidbody2D.AddForce(moveForce, ForceMode2D.Force);
 
        
@@ -120,6 +130,7 @@ public class PlayerController : MonoBehaviour
     private void Rotate(Vector2 direction)
     {
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        audioManage.PlaySound("aim");
         Quaternion targetRot = Quaternion.Euler(0, 0, angle);
         transform.rotation = Quaternion.RotateTowards(
             transform.rotation,
@@ -136,6 +147,9 @@ public class PlayerController : MonoBehaviour
             return;
 
         currentAmmo--;
+
+        //play sound
+        audioManage.PlaySound("shoot");
 
         Debug.Log($"[AMMO] Fired. Ammo now: {currentAmmo}");
 
@@ -180,6 +194,7 @@ public class PlayerController : MonoBehaviour
     public void AddAmmo(int amount)
     {
         currentAmmo = Mathf.Min(currentAmmo + amount, maxAmmo);
+        
     }
 
 
