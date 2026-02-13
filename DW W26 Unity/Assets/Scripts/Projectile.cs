@@ -2,24 +2,17 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    public TeamPlayerController owner;
-    public int scoreValue = 5;
-    public float lifeTime = 3f;
+    [SerializeField] private float lifeTime = 3f;
 
     void Start()
     {
         Destroy(gameObject, lifeTime);
+
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        TeamPlayerController hit =
-            other.GetComponent<TeamPlayerController>();
+        Destroy(gameObject);
 
-        if (hit != null && hit != owner)
-        {
-            owner.AddScore(scoreValue);
-            Destroy(gameObject);
-        }
     }
 }
