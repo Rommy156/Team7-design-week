@@ -72,11 +72,25 @@ public class TeamPlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (moveAction == null) return;
+        if (rb == null || moveAction == null)
+        {
+            Debug.Log($"{name} movement missing references.");
+            return;
+        }
 
-        Vector2 move = moveAction.ReadValue<Vector2>();
-        rb.linearVelocity = move * moveSpeed;
+        // Read input
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        Debug.Log("MOVE INPUT: " + moveInput);
+
+        // Smooth floaty movement
+        Vector2 targetVelocity = moveInput * moveSpeed;
+        rb.linearVelocity = Vector2.Lerp(
+            rb.linearVelocity,
+            targetVelocity,
+            10f * Time.fixedDeltaTime
+        );
     }
+
 
     // ===============================
     // AIM
