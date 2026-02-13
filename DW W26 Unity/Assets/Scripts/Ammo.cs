@@ -2,32 +2,16 @@ using UnityEngine;
 
 public class Ammo : MonoBehaviour
 {
-    [SerializeField] private int ammoAmount = 5;
-    public AudioManager Manager;
-
+    [SerializeField] private int ammoAmount = 10;
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Only players can pick this up
-        if (!other.CompareTag("Player"))
-            return;
+        TeamPlayerController player = other.GetComponentInParent<TeamPlayerController>();
 
-        PlayerController player =
-            other.GetComponent<PlayerController>();
-
-        if (player == null)
-            return;
-
-        // Give ammo
-        player.AddAmmo(ammoAmount);
-
-        // play sound
-        if(Manager == null)
+        if (player != null)
         {
-            Manager = FindAnyObjectByType<AudioManager>();
+            Debug.Log("Picked up ammo");
+            player.AddAmmo(ammoAmount);   
+            Destroy(gameObject);
         }
-        Manager.PlaySound("ammoPickup");
-
-        // Remove pickup
-        Destroy(gameObject);
     }
 }
