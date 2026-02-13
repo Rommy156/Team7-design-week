@@ -3,50 +3,74 @@ using UnityEngine.InputSystem;
 
 public class TeamPlayerController : MonoBehaviour
 {
+    [field: SerializeField] public int PlayerNumber { get; private set; }
+    [field: SerializeField] public Color PlayerColor { get; private set; }
+    [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
+
     [Header("Movement")]
-    public float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 5f;
     private Rigidbody2D rb;
 
     [Header("Combat")]
-    public Transform firePoint;
-    public GameObject projectilePrefab;
-    public float projectileSpeed = 12f;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float projectileSpeed = 12f;
 
     [Header("Score")]
     public int teamScore;
 
     [Header("Ammo")]
-    public int maxAmmo = 10;
+    [SerializeField] private int maxAmmo = 10;
     private int currentAmmo;
 
+    // INPUT ACTIONS
     private InputAction moveAction;
     private InputAction aimAction;
     private InputAction fireAction;
 
-    private PlayerInput movementPlayer;
-    private PlayerInput shooterPlayer;
-
+    // ===============================
+    // AWAKE
+    // ===============================
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        if (rb == null)
+            Debug.LogError($"{name} missing Rigidbody2D!");
+
         currentAmmo = maxAmmo;
     }
 
     // ===============================
-    // ASSIGN PLAYERS
+    // PLAYER SETUP
     // ===============================
 
+    public void AssignColor(Color color)
+    {
+        PlayerColor = color;
+
+        if (SpriteRenderer != null)
+            SpriteRenderer.color = color;
+        else
+            Debug.LogWarning($"{name} missing SpriteRenderer");
+    }
+
+    public void AssignPlayerNumber(int playerNumber)
+    {
+        PlayerNumber = playerNumber;
+    }
+
+    // MOVEMENT PLAYER (driver)
     public void AssignMovementPlayer(PlayerInput input)
     {
-        movementPlayer = input;
         moveAction = input.currentActionMap.FindAction("Move", true);
         moveAction.Enable();
         Debug.Log("Movement player assigned");
     }
 
+    // SHOOTER PLAYER (gunner)
     public void AssignShooterPlayer(PlayerInput input)
     {
-        shooterPlayer = input;
         aimAction = input.currentActionMap.FindAction("Aim", true);
         fireAction = input.currentActionMap.FindAction("Fire", true);
 
@@ -59,31 +83,25 @@ public class TeamPlayerController : MonoBehaviour
     // ===============================
     // UPDATE
     // ===============================
-
     void Update()
     {
         HandleAim();
 
         if (fireAction != null && fireAction.WasPressedThisFrame())
-        {
             Fire();
-        }
     }
 
+    // ===============================
+    // MOVEMENT
+    // ===============================
     void FixedUpdate()
     {
-        if (rb == null || moveAction == null)
-        {
-            Debug.Log($"{name} movement missing references.");
-            return;
-        }
+        if (rb == null || moveAction == null) return;
 
-        // Read input
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        Debug.Log("MOVE INPUT: " + moveInput);
 
-        // Smooth floaty movement
         Vector2 targetVelocity = moveInput * moveSpeed;
+
         rb.linearVelocity = Vector2.Lerp(
             rb.linearVelocity,
             targetVelocity,
@@ -91,11 +109,9 @@ public class TeamPlayerController : MonoBehaviour
         );
     }
 
-
     // ===============================
     // AIM
     // ===============================
-
     void HandleAim()
     {
         if (aimAction == null) return;
@@ -110,11 +126,9 @@ public class TeamPlayerController : MonoBehaviour
     // ===============================
     // FIRE
     // ===============================
-
     void Fire()
     {
         if (currentAmmo <= 0) return;
-        if (projectilePrefab == null) return;
         if (firePoint == null) return;
 
         currentAmmo--;
@@ -126,8 +140,6 @@ public class TeamPlayerController : MonoBehaviour
         );
 
         Rigidbody2D prb = proj.GetComponent<Rigidbody2D>();
-
-        // IMPORTANT: use velocity not AddForce
         prb.linearVelocity = firePoint.up * projectileSpeed;
 
         proj.GetComponent<Projectile>().owner = this;
@@ -136,11 +148,9 @@ public class TeamPlayerController : MonoBehaviour
     // ===============================
     // AMMO + SCORE
     // ===============================
-
     public void AddAmmo(int amount)
     {
         currentAmmo = Mathf.Clamp(currentAmmo + amount, 0, maxAmmo);
-        Debug.Log("Ammo: " + currentAmmo);
     }
 
     public void AddScore(int amount)
