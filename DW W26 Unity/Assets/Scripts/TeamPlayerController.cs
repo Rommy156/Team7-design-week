@@ -146,6 +146,6 @@ public class TeamPlayerController : MonoBehaviour
     public void AddScore(int amount)
     {
         teamScore += amount;
-        Debug.Log("Score: " + teamScore);
+        GameManager.Instance.UpdateScoreUI(teamScore);
     }
 }
