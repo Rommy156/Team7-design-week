@@ -55,36 +55,41 @@ public class PlayerController : MonoBehaviour
     // Set up player input
     public void AssignPlayerInputDevice(PlayerInput playerInput)
     {
-        // Record our player input (ie controller).
         PlayerInput = playerInput;
-        // Find the references to the "Move" and "Jump" actions inside the player input's action map
-        // Here I specify "Player/" but it in not required if assigning the action map in PlayerInput inspector.
-        InputActionMove = playerInput.actions.FindAction($"Player/Move");
-        InputActionAim = playerInput.actions.FindAction($"Player/Aim");
-        InputActionFire = playerInput.actions.FindAction($"Player/Fire");
+
+        InputActionMove = playerInput.actions.FindAction("Move", true);
+        InputActionAim = playerInput.actions.FindAction("Aim", true);
+        InputActionFire = playerInput.actions.FindAction("Fire", true);
+
+        InputActionMove.Enable();
+        InputActionAim.Enable();
+        InputActionFire.Enable();
     }
+
 
     // Assign player number on spawn
     public void AssignPlayerNumber(int playerNumber)
     {
         this.PlayerNumber = playerNumber;
     }
-    
+
 
     // Runs each frame
     public void Update()
     {
-        RotateTowardAim();
-        if (InputActionFire.WasPressedThisFrame()) 
-        {
+        if (InputActionAim != null)
+            RotateTowardAim();
+
+        if (InputActionFire != null && InputActionFire.WasPressedThisFrame())
             FireProjectile();
-        }
     }
+
 
     // Runs each phsyics update
     void FixedUpdate()
     {
-        if (Rigidbody2D == null)
+        if (Rigidbody2D == null || InputActionMove == null) return;
+
         {
             Debug.Log($"{name}'s {nameof(PlayerController)}.{nameof(Rigidbody2D)} is null.");
             return;
@@ -179,9 +184,12 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(forward * projectileSpeed, ForceMode2D.Impulse);
 
     }
-    public void AddAmmo(int amount)
+   public void AddAmmo(int amount)
     {
-        currentAmmo = Mathf.Min(currentAmmo + amount, maxAmmo);
+        currentAmmo += amount;
+        currentAmmo = Mathf.Clamp(currentAmmo, 0, maxAmmo);
+
+        Debug.Log("Ammo: " + currentAmmo);
     }
 
 

@@ -2,24 +2,17 @@ using UnityEngine;
 
 public class Ammo : MonoBehaviour
 {
-    [SerializeField] private int ammoAmount = 5;
-
+    [SerializeField] private int ammoAmount = 10;
+    TeamPlayerController TeamPlayerController;
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Only players can pick this up
-        if (!other.CompareTag("Player"))
-            return;
+        TeamPlayerController player = other.GetComponentInParent<TeamPlayerController>();
 
-        PlayerController player =
-            other.GetComponent<PlayerController>();
-
-        if (player == null)
-            return;
-
-        // Give ammo
-        player.AddAmmo(ammoAmount);
-
-        // Remove pickup
-        Destroy(gameObject);
+        if (player != null)
+        {
+            Debug.Log("Picked up ammo");
+            player.AddAmmo(ammoAmount);   
+            Destroy(gameObject);
+        }
     }
 }

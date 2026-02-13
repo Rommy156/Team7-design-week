@@ -10,44 +10,33 @@ public class PlayerSpawn : MonoBehaviour
     public void OnPlayerJoined(PlayerInput playerInput)
     {
         int maxPlayerCount = Mathf.Min(SpawnPoints.Length, PlayerColors.Length);
+
         if (maxPlayerCount < 1)
         {
-            string msg =
-                $"You forgot to assign {name}'s {nameof(PlayerSpawn)}.{nameof(SpawnPoints)}" +
-                $"and {nameof(PlayerSpawn)}.{nameof(PlayerColors)}!";
-            Debug.Log(msg);
-        }
-
-        // Prevent adding in more than max number of players
-        if (PlayerCount >= maxPlayerCount)
-        {
-            // Delete new object
-            string msg =
-                $"Max player count {maxPlayerCount} reached. " +
-                $"Destroying newly spawned object {playerInput.gameObject.name}.";
-            Debug.Log(msg);
-            Destroy(playerInput.gameObject);
+            Debug.Log("SpawnPoints or PlayerColors not assigned!");
             return;
         }
 
-        // Assign spawn transform values
+        // Assign spawn position
         playerInput.transform.position = SpawnPoints[PlayerCount].position;
         playerInput.transform.rotation = SpawnPoints[PlayerCount].rotation;
+
         Color color = PlayerColors[PlayerCount];
 
-        // Increment player count
+        // Increment count
         PlayerCount++;
 
-        // Set up player controller
-        PlayerController playerController = playerInput.gameObject.GetComponent<PlayerController>();
-        playerController.AssignPlayerInputDevice(playerInput);
-        playerController.AssignPlayerNumber(PlayerCount);
-        playerController.AssignColor(color);
+        // Setup PlayerController
+        PlayerController controller =
+            playerInput.GetComponent<PlayerController>();
+
+        controller.AssignPlayerInputDevice(playerInput);
+        controller.AssignPlayerNumber(PlayerCount);
+        controller.AssignColor(color);
     }
 
     public void OnPlayerLeft(PlayerInput playerInput)
     {
-        // Not handling anything right now.
-        Debug.Log("Player left...");
+        Debug.Log("Player left.");
     }
 }

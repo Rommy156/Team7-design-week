@@ -10,53 +10,55 @@ public class TeamPlayerController : MonoBehaviour
     [Header("Combat")]
     public Transform firePoint;
     public GameObject projectilePrefab;
-    public float projectileForce = 12f;
-    public float rotationSpeed = 720f;
-
-    [Header("Health")]
-    public int maxHP = 100;
-    private int currentHP;
+    public float projectileSpeed = 12f;
 
     [Header("Score")]
     public int teamScore;
 
-    // PlayerInput references
-    private PlayerInput movementPlayer;
-    private PlayerInput shooterPlayer;
+    [Header("Ammo")]
+    public int maxAmmo = 10;
+    private int currentAmmo;
 
     private InputAction moveAction;
     private InputAction aimAction;
     private InputAction fireAction;
 
+    private PlayerInput movementPlayer;
+    private PlayerInput shooterPlayer;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        currentHP = maxHP;
+        currentAmmo = maxAmmo;
     }
+
+    // ===============================
+    // ASSIGN PLAYERS
+    // ===============================
 
     public void AssignMovementPlayer(PlayerInput input)
     {
         movementPlayer = input;
-
         moveAction = input.currentActionMap.FindAction("Move", true);
         moveAction.Enable();
-
-        Debug.Log("Move value: " + moveAction);
-        Debug.Log("Move action assigned: " + moveAction);
+        Debug.Log("Movement player assigned");
     }
 
     public void AssignShooterPlayer(PlayerInput input)
     {
         shooterPlayer = input;
-
-        aimAction = input.actions.FindAction("Aim", true);
-        fireAction = input.actions.FindAction("Fire", true);
+        aimAction = input.currentActionMap.FindAction("Aim", true);
+        fireAction = input.currentActionMap.FindAction("Fire", true);
 
         aimAction.Enable();
         fireAction.Enable();
 
-        Debug.Log("Aim + Fire assigned");
+        Debug.Log("Shooter player assigned");
     }
+
+    // ===============================
+    // UPDATE
+    // ===============================
 
     void Update()
     {
@@ -70,13 +72,15 @@ public class TeamPlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (moveAction != null)
-        {
-            Vector2 move = moveAction.ReadValue<Vector2>();
-            rb.AddForce(move * moveSpeed);
-        }
+        if (moveAction == null) return;
 
+        Vector2 move = moveAction.ReadValue<Vector2>();
+        rb.linearVelocity = move * moveSpeed;
     }
+
+    // ===============================
+    // AIM
+    // ===============================
 
     void HandleAim()
     {
@@ -89,8 +93,18 @@ public class TeamPlayerController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
+    // ===============================
+    // FIRE
+    // ===============================
+
     void Fire()
     {
+        if (currentAmmo <= 0) return;
+        if (projectilePrefab == null) return;
+        if (firePoint == null) return;
+
+        currentAmmo--;
+
         GameObject proj = Instantiate(
             projectilePrefab,
             firePoint.position,
@@ -98,24 +112,21 @@ public class TeamPlayerController : MonoBehaviour
         );
 
         Rigidbody2D prb = proj.GetComponent<Rigidbody2D>();
-        prb.AddForce(firePoint.right * projectileForce, ForceMode2D.Impulse);
+
+        // IMPORTANT: use velocity not AddForce
+        prb.linearVelocity = firePoint.up * projectileSpeed;
 
         proj.GetComponent<Projectile>().owner = this;
     }
 
-    public void TakeDamage(int amount)
-    {
-        currentHP -= amount;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+    // ===============================
+    // AMMO + SCORE
+    // ===============================
 
-        if (currentHP <= 0)
-            Die();
-    }
-
-    void Die()
+    public void AddAmmo(int amount)
     {
-        Debug.Log("Team died");
-        Destroy(gameObject);
+        currentAmmo = Mathf.Clamp(currentAmmo + amount, 0, maxAmmo);
+        Debug.Log("Ammo: " + currentAmmo);
     }
 
     public void AddScore(int amount)
