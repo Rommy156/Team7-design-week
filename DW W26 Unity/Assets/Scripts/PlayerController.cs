@@ -24,8 +24,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int currentAmmo;
 
 
-    public bool DoJump { get; private set; }
-
     // Player input information
     private PlayerInput PlayerInput;
     private InputAction InputActionMove;
