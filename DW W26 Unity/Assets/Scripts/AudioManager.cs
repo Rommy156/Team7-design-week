@@ -14,34 +14,34 @@ public class AudioManager : MonoBehaviour
         
     }
 
-    public AudioClip ammoPickup;
     public void StopPlay()
     {
         music.Stop();
     }
     public void PlaySound(string sound)
     {
+        Debug.Log(sound);
         switch (sound)
         {
-            case "ammoPickup": //done
+            case "ammoPickup": //done?
                 pickup.Play();
                 break;
 
-            case "aim": //
+            case "aim": // done
                 if (!aiming.isPlaying)
                 {
                     aiming.Play();
                 }
                 break;
 
-            case "crawl": //
+            case "crawl": // done
                 if (!crawl.isPlaying)
                 {
                     crawl.Play();
                 }
                 break;
 
-            case "dam": //done
+            case "dam": //done ?
                 dammage.Play();
                 break;
 
@@ -49,7 +49,7 @@ public class AudioManager : MonoBehaviour
                 shoot.Play();
                 break;
 
-            case "music":
+            case "music": //done
                 if (!music.isPlaying)
                 {
                     music.Play();

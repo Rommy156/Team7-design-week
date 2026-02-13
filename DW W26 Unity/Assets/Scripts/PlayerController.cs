@@ -23,6 +23,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int maxAmmo = 10;
     [SerializeField] private int currentAmmo;
 
+    //audio manager
+    public AudioManager audioManager;
+
 
     public bool DoJump { get; private set; }
 
@@ -37,6 +40,9 @@ public class PlayerController : MonoBehaviour
         currentHP = maxHP;
         currentAmmo = maxAmmo;
         Debug.Log($"[AMMO] Start Ammo: {currentAmmo}");
+        audioManager = FindAnyObjectByType<AudioManager>();
+        audioManager.PlaySound("music");
+
     }
 
     // Assign color value on spawn from main spawner
@@ -93,6 +99,10 @@ public class PlayerController : MonoBehaviour
         Vector2 moveInput = InputActionMove.ReadValue<Vector2>();
 
         Vector2 targetVelocity = moveInput * MoveSpeed;
+        if (moveInput.x != 0 || moveInput.y != 0)
+        {
+            audioManager.PlaySound("crawl");
+        }
         Rigidbody2D.linearVelocity = Vector2.Lerp(
             Rigidbody2D.linearVelocity,
             targetVelocity,
@@ -112,11 +122,13 @@ public class PlayerController : MonoBehaviour
                 Camera.main.ScreenToWorldPoint(aimInput);
             Vector2 dir = mouseWorld - transform.position;
             Rotate(dir);
+            audioManager.PlaySound("aim");
         }
         // Stick aiming
         else if (aimInput.sqrMagnitude > 0.1f)
         {
             Rotate(aimInput);
+            audioManager.PlaySound("aim");
         }
     }
 
@@ -139,6 +151,8 @@ public class PlayerController : MonoBehaviour
             return;
 
         currentAmmo--;
+        //play sound
+        audioManager.PlaySound("shoot");
 
         Debug.Log($"[AMMO] Fired. Ammo now: {currentAmmo}");
 

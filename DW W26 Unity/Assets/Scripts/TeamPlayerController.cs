@@ -26,10 +26,14 @@ public class TeamPlayerController : MonoBehaviour
     private PlayerInput movementPlayer;
     private PlayerInput shooterPlayer;
 
+    private AudioManager audioManager;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         currentAmmo = maxAmmo;
+        audioManager = FindAnyObjectByType<AudioManager>();
+        audioManager.PlaySound("music");
     }
 
     // ===============================
@@ -84,6 +88,10 @@ public class TeamPlayerController : MonoBehaviour
 
         // Smooth floaty movement
         Vector2 targetVelocity = moveInput * moveSpeed;
+        if(moveInput.x != 0 || moveInput.y != 0)
+        {
+            audioManager.PlaySound("crawl");
+        }
         rb.linearVelocity = Vector2.Lerp(
             rb.linearVelocity,
             targetVelocity,
@@ -102,9 +110,13 @@ public class TeamPlayerController : MonoBehaviour
 
         Vector2 aim = aimAction.ReadValue<Vector2>();
         if (aim.sqrMagnitude < 0.1f) return;
-
         float angle = Mathf.Atan2(aim.y, aim.x) * Mathf.Rad2Deg;
+        if (Quaternion.Euler(0, 0, angle) != transform.rotation)
+        {
+            audioManager.PlaySound("aim");
+        }
         transform.rotation = Quaternion.Euler(0, 0, angle);
+        
     }
 
     // ===============================
@@ -118,6 +130,7 @@ public class TeamPlayerController : MonoBehaviour
         if (firePoint == null) return;
 
         currentAmmo--;
+        audioManager.PlaySound("shoot");
 
         GameObject proj = Instantiate(
             projectilePrefab,
@@ -146,6 +159,7 @@ public class TeamPlayerController : MonoBehaviour
     public void AddScore(int amount)
     {
         teamScore += amount;
+        audioManager.PlaySound("dam");
         GameManager.Instance.UpdateScoreUI(teamScore);
     }
 }
