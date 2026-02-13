@@ -76,15 +76,29 @@ public class TeamPlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (moveAction == null) return;
-        
-        Vector2 move = moveAction.ReadValue<Vector2>();
-        if(move.x != 0 || move.y != 0)
+        if (rb == null || moveAction == null)
+        {
+            Debug.Log($"{name} movement missing references.");
+            return;
+        }
+
+        // Read input
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        Debug.Log("MOVE INPUT: " + moveInput);
+
+        // Smooth floaty movement
+        Vector2 targetVelocity = moveInput * moveSpeed;
+        if(moveInput.x != 0 || moveInput.y != 0)
         {
             audioManager.PlaySound("crawl");
         }
-        rb.linearVelocity = move * moveSpeed;
+        rb.linearVelocity = Vector2.Lerp(
+            rb.linearVelocity,
+            targetVelocity,
+            10f * Time.fixedDeltaTime
+        );
     }
+
 
     // ===============================
     // AIM
@@ -144,8 +158,8 @@ public class TeamPlayerController : MonoBehaviour
 
     public void AddScore(int amount)
     {
-        audioManager.PlaySound("dam");
         teamScore += amount;
-        Debug.Log("Score: " + teamScore);
+        audioManager.PlaySound("dam");
+        GameManager.Instance.UpdateScoreUI(teamScore);
     }
 }

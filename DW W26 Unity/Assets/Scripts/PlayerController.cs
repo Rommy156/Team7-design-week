@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour
     public AudioManager audioManager;
 
 
+    public bool DoJump { get; private set; }
+
     // Player input information
     private PlayerInput PlayerInput;
     private InputAction InputActionMove;

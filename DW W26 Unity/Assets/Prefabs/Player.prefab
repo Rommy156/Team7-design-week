@@ -357,8 +357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61e1ef51ab6c4724eb475dc0f3a440d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TeamInputManager
-  team1: {fileID: 7506314836855336484}
-  team2: {fileID: 5179719353336435038, guid: 86a30a50fe45d7d48ad8b999aac69c82, type: 3}
+  teamPlayer: {fileID: 7506314836855336484}
 --- !u!114 &7506314836855336484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,8 +373,6 @@ MonoBehaviour:
   moveSpeed: 5
   firePoint: {fileID: 0}
   projectilePrefab: {fileID: 144410430854290708, guid: ed7598fdb13337849a1ffc5015dd9bda, type: 3}
-  projectileForce: 9
-  rotationSpeed: 720
-  maxHP: 100
+  projectileSpeed: 12
   teamScore: 0
   maxAmmo: 50
