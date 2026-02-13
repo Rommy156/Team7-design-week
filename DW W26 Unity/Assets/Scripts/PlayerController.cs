@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,7 +8,6 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [field: SerializeField] public Rigidbody2D Rigidbody2D { get; private set; }
     [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
-    [field: SerializeField] public AudioManager audioManage{ get; private set; }
     //parameters for shooting projectiles
     [Header("Combat")]
     [SerializeField] private Transform firePoint;
@@ -26,6 +24,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int currentAmmo;
 
 
+    public bool DoJump { get; private set; }
+
     // Player input information
     private PlayerInput PlayerInput;
     private InputAction InputActionMove;
@@ -37,11 +37,6 @@ public class PlayerController : MonoBehaviour
         currentHP = maxHP;
         currentAmmo = maxAmmo;
         Debug.Log($"[AMMO] Start Ammo: {currentAmmo}");
-        if (audioManage == null)
-        {
-            audioManage = FindAnyObjectByType<AudioManager>();
-        }
-        audioManage.PlaySound("music");
     }
 
     // Assign color value on spawn from main spawner
@@ -60,55 +55,52 @@ public class PlayerController : MonoBehaviour
     // Set up player input
     public void AssignPlayerInputDevice(PlayerInput playerInput)
     {
-        // Record our player input (ie controller).
         PlayerInput = playerInput;
-        // Find the references to the "Move" and "Jump" actions inside the player input's action map
-        // Here I specify "Player/" but it in not required if assigning the action map in PlayerInput inspector.
-        InputActionMove = playerInput.actions.FindAction($"Player/Move");
-        InputActionAim = playerInput.actions.FindAction($"Player/Aim");
-        InputActionFire = playerInput.actions.FindAction($"Player/Fire");
+
+        InputActionMove = playerInput.actions.FindAction("Move", true);
+        InputActionAim = playerInput.actions.FindAction("Aim", true);
+        InputActionFire = playerInput.actions.FindAction("Fire", true);
+
+        InputActionMove.Enable();
+        InputActionAim.Enable();
+        InputActionFire.Enable();
     }
+
 
     // Assign player number on spawn
     public void AssignPlayerNumber(int playerNumber)
     {
         this.PlayerNumber = playerNumber;
     }
-    
+
 
     // Runs each frame
     public void Update()
     {
-        RotateTowardAim();
-        if (InputActionFire.WasPressedThisFrame()) 
-        {
+        if (InputActionAim != null)
+            RotateTowardAim();
+
+        if (InputActionFire != null && InputActionFire.WasPressedThisFrame())
             FireProjectile();
-        }
     }
+
 
     // Runs each phsyics update
     void FixedUpdate()
     {
-        if (Rigidbody2D == null)
-        {
-            Debug.Log($"{name}'s {nameof(PlayerController)}.{nameof(Rigidbody2D)} is null.");
-            return;
-        }
+        if (Rigidbody2D == null || InputActionMove == null) return;
 
-        // MOVE
-        // Read the "Move" action value, which is a 2D vector
-        Vector2 moveValue = InputActionMove.ReadValue<Vector2>();
-        // Here we're only using the X axis to move.
-        Vector2 moveForce = moveValue * MoveSpeed;
-        // Apply fraction of force each frame
-        if (moveForce.x != 0 || moveForce.y != 0)
-        {
-            audioManage.PlaySound("crawl");
-        }
-        Rigidbody2D.AddForce(moveForce, ForceMode2D.Force);
+        Vector2 moveInput = InputActionMove.ReadValue<Vector2>();
 
-       
+        Vector2 targetVelocity = moveInput * MoveSpeed;
+        Rigidbody2D.linearVelocity = Vector2.Lerp(
+            Rigidbody2D.linearVelocity,
+            targetVelocity,
+            10f * Time.fixedDeltaTime
+        );
+
     }
+
     private void RotateTowardAim()
     {
         Vector2 aimInput = InputActionAim.ReadValue<Vector2>();
@@ -131,7 +123,6 @@ public class PlayerController : MonoBehaviour
     private void Rotate(Vector2 direction)
     {
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        audioManage.PlaySound("aim");
         Quaternion targetRot = Quaternion.Euler(0, 0, angle);
         transform.rotation = Quaternion.RotateTowards(
             transform.rotation,
@@ -148,9 +139,6 @@ public class PlayerController : MonoBehaviour
             return;
 
         currentAmmo--;
-
-        //play sound
-        audioManage.PlaySound("shoot");
 
         Debug.Log($"[AMMO] Fired. Ammo now: {currentAmmo}");
 
@@ -192,10 +180,12 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(forward * projectileSpeed, ForceMode2D.Impulse);
 
     }
-    public void AddAmmo(int amount)
+   public void AddAmmo(int amount)
     {
-        currentAmmo = Mathf.Min(currentAmmo + amount, maxAmmo);
-        
+        currentAmmo += amount;
+        currentAmmo = Mathf.Clamp(currentAmmo, 0, maxAmmo);
+
+        Debug.Log("Ammo: " + currentAmmo);
     }
 
 
