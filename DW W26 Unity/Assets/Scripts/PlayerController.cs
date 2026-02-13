@@ -60,56 +60,55 @@ public class PlayerController : MonoBehaviour
     // Set up player input
     public void AssignPlayerInputDevice(PlayerInput playerInput)
     {
+        // Record our player input (ie controller).
         PlayerInput = playerInput;
-
-        InputActionMove = playerInput.actions.FindAction("Move", true);
-        InputActionAim = playerInput.actions.FindAction("Aim", true);
-        InputActionFire = playerInput.actions.FindAction("Fire", true);
-
-        InputActionMove.Enable();
-        InputActionAim.Enable();
-        InputActionFire.Enable();
+        // Find the references to the "Move" and "Jump" actions inside the player input's action map
+        // Here I specify "Player/" but it in not required if assigning the action map in PlayerInput inspector.
+        InputActionMove = playerInput.actions.FindAction($"Player/Move");
+        InputActionAim = playerInput.actions.FindAction($"Player/Aim");
+        InputActionFire = playerInput.actions.FindAction($"Player/Fire");
     }
-
 
     // Assign player number on spawn
     public void AssignPlayerNumber(int playerNumber)
     {
         this.PlayerNumber = playerNumber;
     }
-
+    
 
     // Runs each frame
     public void Update()
     {
-        if (InputActionAim != null)
-            RotateTowardAim();
-
-        if (InputActionFire != null && InputActionFire.WasPressedThisFrame())
+        RotateTowardAim();
+        if (InputActionFire.WasPressedThisFrame()) 
+        {
             FireProjectile();
+        }
     }
-
 
     // Runs each phsyics update
     void FixedUpdate()
     {
-        if (Rigidbody2D == null || InputActionMove == null) return;
+        if (Rigidbody2D == null)
+        {
+            Debug.Log($"{name}'s {nameof(PlayerController)}.{nameof(Rigidbody2D)} is null.");
+            return;
+        }
 
-        Vector2 moveInput = InputActionMove.ReadValue<Vector2>();
-
-        Vector2 targetVelocity = moveInput * MoveSpeed;
-        Rigidbody2D.linearVelocity = Vector2.Lerp(
-            Rigidbody2D.linearVelocity,
-            targetVelocity,
-            10f * Time.fixedDeltaTime
-        );
-        if (moveInput.x != 0 || moveInput.y != 0)
+        // MOVE
+        // Read the "Move" action value, which is a 2D vector
+        Vector2 moveValue = InputActionMove.ReadValue<Vector2>();
+        // Here we're only using the X axis to move.
+        Vector2 moveForce = moveValue * MoveSpeed;
+        // Apply fraction of force each frame
+        if (moveForce.x != 0 || moveForce.y != 0)
         {
             audioManage.PlaySound("crawl");
         }
+        Rigidbody2D.AddForce(moveForce, ForceMode2D.Force);
 
+       
     }
-
     private void RotateTowardAim()
     {
         Vector2 aimInput = InputActionAim.ReadValue<Vector2>();
@@ -193,12 +192,10 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(forward * projectileSpeed, ForceMode2D.Impulse);
 
     }
-   public void AddAmmo(int amount)
+    public void AddAmmo(int amount)
     {
-        currentAmmo += amount;
-        currentAmmo = Mathf.Clamp(currentAmmo, 0, maxAmmo);
-
-        Debug.Log("Ammo: " + currentAmmo);
+        currentAmmo = Mathf.Min(currentAmmo + amount, maxAmmo);
+        
     }
 
 
